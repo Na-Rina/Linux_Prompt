@@ -1,0 +1,28 @@
+def main():
+	  parser = Parser() # Parser 객체를 활용해 명령줄 인수 파싱
+	  known_args = parser.parse(sys.argv) # sys.argv 명령줄 인수의 리스트
+    if known_args.help: # known_args.help 도움말 인수를 제공했는지 확인, 도움말 출력
+		    parser.print_help()
+		# known_args.version: 버전 정보 요청 확인
+    elif known_args.version: 
+        logs.version(get_installation_version(),
+                     sys.version.split()[0], shell.info())
+    # known_args.alias: 사용자에게 명령줄 에일리어스 제안 
+    # 에일리어스: 명령어 단축키 변환 or 명령어 변환                
+    elif known_args.alias:
+        print_alias(known_args)
+# known_args.command: os.environ에 'TF_HISTORY'가 존재한다면 fix_command 호출하여 명령수정    
+    elif known_args.command or 'TF_HISTORY' in os.environ:
+        fix_command(known_args)
+    # known_args.shell_logger: 쉘 로거 기능을 활성화할때, 관련 모듈 임포트, shell_logger 실행
+    # Linux, MACOS 전용    
+    elif known_args.shell_logger:
+        try:
+            from .shell_logger import shell_logger  # noqa: E402
+        except ImportError:
+            logs.warn('Shell logger supports only Linux and macOS')
+        else:
+            shell_logger(known_args.shell_logger)
+    # 모든 조건에 부합하지 않을 때 출력
+    else:
+        parser.print_usage()
