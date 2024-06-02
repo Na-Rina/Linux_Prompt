@@ -1,0 +1,8 @@
+# gemini-pro 모델 불러오기
+model = genai.GenerativeModel('gemini-pro')
+# 빈 배열에 채팅을 초기화
+chat = model.start_chat(history=[])
+# 채팅하기
+response = chat.send_message("In one sentence, explain how a computer works to a young child.")
+# 마크다운 형태로 채팅 표시
+to_markdown(response.text)
