@@ -1,0 +1,49 @@
+⇒ sys.argv:  명령줄 인수 리스트
+
+⇒known_args: 명령줄 인수 파싱 결과
+
+⇒TF_HISTORY: 사용된 명령어의 히스토리, get_raw_command 함수를 통해 파악
+
+def fix_command(known_args):
+    """Fixes previous command. Used when `thefuck` called without arguments."""
+    # 설정 초기화
+    settings.init(known_args)
+    with logs.debug_time('Total'):
+        logs.debug(u'Run with settings: {}'.format(pformat(settings)))
+        raw_command = _get_raw_command(known_args)
+
+        try:
+        # 주어진 명령을 Command 객체로 변환
+            command = types.Command.from_raw_script(raw_command)
+        # 예외 발생시 해당 명령이 유효하지 않은 것으로 간주하고 종료    
+        except EmptyCommand:
+            logs.debug('Empty command, nothing to do')
+            return
+			  # 주어진 명령을 기반으로 올바른 명령 제안
+        corrected_commands = get_corrected_commands(command)
+        # 제안된 명령 중 하나를 선택
+        selected_command = select_command(corrected_commands)
+			  # 선택된 명령이 있다면 실행, 없다면 종료
+        if selected_command:
+            selected_command.run(command)
+        else:
+            sys.exit(1)
+
+# known_args를 기반으로 사용자가 실행한 명령을 가져옴
+def _get_raw_command(known_args):
+# TF_HISTORY가 존재시, 그 값은 명령어 히스토리로 간주
+    if known_args.force_command:
+        return [known_args.force_command]
+    elif not os.environ.get('TF_HISTORY'):
+        return known_args.command
+    else:
+    # 히스토리를 역순으로 순회, 에일리어스 혹은 실행 파일 목록과 비교
+        history = os.environ['TF_HISTORY'].split('\n')[::-1]
+        alias = get_alias()
+        executables = get_all_executables()
+        for command in history:
+            diff = SequenceMatcher(a=alias, b=command).ratio()
+            if diff < const.DIFF_WITH_ALIAS or command in executables:
+                return [command]
+    # 명령이 유효하지 않으면 빈 리스트 반환            
+    return []
