@@ -1,0 +1,4 @@
+model.count_tokes("What is the meaning of life?")
+# total_token: 7
+model.count_tokens(chat.history)
+# total_tokens: 501
