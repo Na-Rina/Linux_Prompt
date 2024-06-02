@@ -1,0 +1,16 @@
+# Gemini API 문서 - 파이썬버전
+
+- 링크
+    
+    [Gemini API](https://ai.google.dev/gemini-api/docs/get-started/python?hl=ko&_gl=1*znxny4*_up*MQ)
+    
+- Gemini Pro: 분당 60회 무료
+
+## 텍스트 생성
+
+- gemini-pro 모델로 설정
+- 간단한 프롬프트 문자열: GenerativeModel.generate_content 메서드에 전달 가능
+- 결과 반환이 되지 않을 경우: GenerateContentResponse.prompt_feedback을 사용
+- 응답 후보 생성: GenerateContentResponse.candidates
+- 실시간 응답: GenerativeModel.generate_content(…, stream=True)
+- 채팅 대화: send_message
